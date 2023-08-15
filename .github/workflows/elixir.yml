@@ -1,0 +1,84 @@
+# Based on Absinthe's CI: https://github.com/absinthe-graphql/absinthe/blob/master/.github/workflows/elixir.yml
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        elixir:
+          - "1.13"
+          - "1.14"
+          - "1.15"
+        otp:
+          - "24"
+          - "25"
+          - "26"
+        include:
+          - elixir: "1.15"
+            otp: "26"
+            format: true
+        exclude:
+          - otp: 26
+            elixir: 1.13
+          - otp: 26
+            elixir: 1.14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+
+      - name: Restore deps cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            deps
+            _build
+          key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}-${{ github.sha }}
+          restore-keys: |
+            deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
+            deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
+
+      - name: Install package dependencies
+        run: mix deps.get
+
+      - name: Check Formatting
+        run: mix format --check-formatted
+        if: ${{ matrix.format }}
+
+      - name: Run unit tests
+        run: |
+          mix clean
+          mix test
+
+      - name: Run unit tests with persistent_term backend
+        run: |
+          mix clean
+          mix test
+
+      - name: Cache/uncache PLTs
+        uses: actions/cache@v3
+        with:
+          path: |
+            priv/plts
+          key: "v1-${{ runner.os }}-\
+                erlang-${{ matrix.otp }}-\
+                elixir-${{ matrix.elixir }}-\
+                ${{ hashFiles('mix.lock') }}"
+
+      - name: Run Dialyzer
+        run: mix dialyzer
