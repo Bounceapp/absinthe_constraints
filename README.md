@@ -59,7 +59,6 @@ end
 object :my_queries do
   field :my_field, non_null(:string) do
     arg(:id, non_null(:string), directives: [constraints: [format: "uuid"]])
-    arg()
     resolve(&my_resolver/2)
   end
 end
