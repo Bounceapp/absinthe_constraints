@@ -1,6 +1,8 @@
 defmodule AbsintheConstraints.DirectiveTest do
   use ExUnit.Case
 
+  alias Absinthe.Blueprint.TypeReference.NonNull
+
   import AbsintheConstraints.Directive, only: [expand_constraints: 2]
 
   @node %{
@@ -17,10 +19,31 @@ defmodule AbsintheConstraints.DirectiveTest do
     __private__: []
   }
 
+  @non_null_node %{
+    name: "feedback",
+    identifier: :feedback,
+    type: %NonNull{of_type: :string},
+    __reference__: %{
+      location: %{
+        file: "/myapp/lib/types.ex",
+        line: 42
+      },
+      module: Types
+    },
+    __private__: []
+  }
+
   describe "expand_constraints/2" do
     test "inserts constraints into __private__ field" do
       assert expand_constraints(%{min_length: 2}, @node) == %{
                @node
+               | __private__: [constraints: %{min_length: 2}]
+             }
+    end
+
+    test "inserts constraints into NonNull fields" do
+      assert expand_constraints(%{min_length: 2}, @non_null_node) == %{
+               @non_null_node
                | __private__: [constraints: %{min_length: 2}]
              }
     end

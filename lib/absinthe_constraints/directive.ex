@@ -21,6 +21,8 @@ defmodule AbsintheConstraints.Directive do
 
   use Absinthe.Schema.Prototype
 
+  alias Absinthe.Blueprint.TypeReference.NonNull
+
   @string_args [:min_length, :max_length, :format]
   @number_args [:min, :max]
 
@@ -38,19 +40,15 @@ defmodule AbsintheConstraints.Directive do
     expand(&__MODULE__.expand_constraints/2)
   end
 
-  def expand_constraints(
-        args,
-        %{type: %Absinthe.Blueprint.TypeReference.NonNull{of_type: type}} = node
-      ),
-      do: expand_constraints(args, %{node | type: type})
+  def expand_constraints(args, %{type: %NonNull{of_type: type}} = node),
+    do: do_expand(args, node, get_args(type))
 
-  def expand_constraints(args, %{type: :string} = node), do: do_expand(args, node, @string_args)
-  def expand_constraints(args, %{type: :integer} = node), do: do_expand(args, node, @number_args)
-  def expand_constraints(args, %{type: :float} = node), do: do_expand(args, node, @number_args)
+  def expand_constraints(args, %{type: type} = node), do: do_expand(args, node, get_args(type))
 
-  def expand_constraints(_, %{type: type}) do
-    raise "Unsupported type: #{inspect(type)}"
-  end
+  defp get_args(:string), do: @string_args
+  defp get_args(:integer), do: @number_args
+  defp get_args(:float), do: @number_args
+  defp get_args(type), do: raise("Unsupported type: #{inspect(type)}")
 
   defp do_expand(args, node, args_list) do
     {valid_args, invalid_args} = Map.split(args, args_list)
