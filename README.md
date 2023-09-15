@@ -63,3 +63,33 @@ object :my_queries do
   end
 end
 ```
+
+## Supported constraints
+
+### String
+
+#### min_length
+```directives: [constraints: [min_length: 5]]```
+Restrict to a minimum length
+
+#### max_length
+```directives: [constraints: [max_length: 5]]```
+Restrict to a minimum length
+
+#### max_length
+```directives: [constraints: [format: :uuid]]```
+Ensure value is in a particular format
+
+Supported formats:
+- `:uuid` - uses :elixir_uuid to validate the value
+- `:email` - uses a regex to validate the value
+
+### Number (integer/float)
+
+#### min
+```directives: [constraints: [min: 5]]```
+Ensure value is greater than or equal to
+
+#### max
+```directives: [constraints: [max: 5]]```
+Ensure value is less than or equal to
