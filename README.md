@@ -76,7 +76,7 @@ Restrict to a minimum length
 ```directives: [constraints: [max_length: 5]]```
 Restrict to a minimum length
 
-#### max_length
+#### format
 ```directives: [constraints: [format: :uuid]]```
 Ensure value is in a particular format
 
