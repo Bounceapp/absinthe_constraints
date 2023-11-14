@@ -21,10 +21,12 @@ defmodule AbsintheConstraints.Directive do
 
   use Absinthe.Schema.Prototype
 
+  alias Absinthe.Blueprint.TypeReference.List
   alias Absinthe.Blueprint.TypeReference.NonNull
 
   @string_args [:min_length, :max_length, :format]
   @number_args [:min, :max]
+  @list_args [:min_items, :max_items]
 
   directive :constraints do
     on([:argument_definition, :field_definition])
@@ -37,8 +39,14 @@ defmodule AbsintheConstraints.Directive do
     arg(:min_length, non_null(:integer), description: "Restrict to a minimum length")
     arg(:max_length, non_null(:integer), description: "Restrict to a maximum length")
 
+    arg(:min_items, non_null(:integer), description: "Restrict to a minimum number of items")
+    arg(:max_items, non_null(:integer), description: "Restrict to a maximum number of items")
+
     expand(&__MODULE__.expand_constraints/2)
   end
+
+  def expand_constraints(args, %{type: %List{}} = node),
+    do: do_expand(args, node, get_args(:list))
 
   def expand_constraints(args, %{type: %NonNull{of_type: type}} = node),
     do: do_expand(args, node, get_args(type))
@@ -48,6 +56,7 @@ defmodule AbsintheConstraints.Directive do
   defp get_args(:string), do: @string_args
   defp get_args(:integer), do: @number_args
   defp get_args(:float), do: @number_args
+  defp get_args(:list), do: @list_args
   defp get_args(type), do: raise("Unsupported type: #{inspect(type)}")
 
   defp do_expand(args, node, args_list) do

@@ -48,5 +48,23 @@ defmodule AbsintheConstraints.ValidatorTest do
       assert handle_constraint({:format, "email"}, "1234") == ["must be a valid email address"]
       assert handle_constraint({:format, "email"}, "email@example.com") == []
     end
+
+    test "should validate min_items" do
+      assert handle_constraint({:min_items, 5}, ["1", "2", "3", "4"]) == [
+               "must have at least 5 items"
+             ]
+
+      assert handle_constraint({:min_items, 5}, ["1", "2", "3", "4", "5"]) == []
+      assert handle_constraint({:min_items, 5}, ["1", "2", "3", "4", "5", "6"]) == []
+    end
+
+    test "should validate max_items" do
+      assert handle_constraint({:max_items, 5}, ["1", "2", "3", "4"]) == []
+      assert handle_constraint({:max_items, 5}, ["1", "2", "3", "4", "5"]) == []
+
+      assert handle_constraint({:max_items, 5}, ["1", "2", "3", "4", "5", "6"]) == [
+               "must have no more than 5 items"
+             ]
+    end
   end
 end
