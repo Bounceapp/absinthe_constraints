@@ -15,9 +15,21 @@ defmodule AbsintheConstraints.Validator do
       else: []
   end
 
+  def handle_constraint({:min_items, min_items}, value) do
+    if length(value) < min_items,
+      do: ["must have at least #{min_items} items"],
+      else: []
+  end
+
   def handle_constraint({:min_length, min_length}, value) do
     if String.length(value) < min_length,
       do: ["must be at least #{min_length} characters in length"],
+      else: []
+  end
+
+  def handle_constraint({:max_items, max_items}, value) do
+    if length(value) > max_items,
+      do: ["must have no more than #{max_items} items"],
       else: []
   end
 
