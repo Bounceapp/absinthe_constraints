@@ -1,8 +1,8 @@
 defmodule AbsintheConstraints.Integration.APITest do
   use ExUnit.Case, async: true
 
-  describe "without a custom default resolver defined" do
-    defmodule NormalSchema do
+  describe "constraints should validate API inputs" do
+    defmodule TestSchema do
       use Absinthe.Schema
 
       @prototype_schema AbsintheConstraints.Directive
@@ -15,7 +15,7 @@ defmodule AbsintheConstraints.Integration.APITest do
         field :test, non_null(:string) do
           arg(:list, list_of(:integer), directives: [constraints: [min_items: 2]])
           arg(:number, :integer, directives: [constraints: [min: 2]])
-          resolve(fn _, _ -> {:ok, "asdf"} end)
+          resolve(fn _, _ -> {:ok, "test_result"} end)
         end
       end
 
@@ -24,12 +24,25 @@ defmodule AbsintheConstraints.Integration.APITest do
           arg(:id, non_null(:string), directives: [constraints: [format: "uuid"]])
           arg(:id_obj, non_null(:input_object))
 
-          resolve(fn _, _ -> {:ok, %{status: "ok"}} end)
+          resolve(fn _, _ -> {:ok, "ok"} end)
         end
       end
+
+      def run_query(query),
+        do:
+          Absinthe.run(
+            query,
+            __MODULE__,
+            pipeline_modifier: &AbsintheConstraints.Phase.add_to_pipeline/2
+          )
     end
 
-    test "should validate query arguments" do
+    test "should return success on valid query arguments" do
+      assert {:ok, %{data: %{"test" => "test_result"}}} ==
+               TestSchema.run_query("{ test(list: [1, 3], number: 5) }")
+    end
+
+    test "should return errors on invalid query arguments" do
       assert {:ok,
               %{
                 errors: [
@@ -43,12 +56,17 @@ defmodule AbsintheConstraints.Integration.APITest do
                   }
                 ]
               }} ==
-               Absinthe.run("{ test(list: [1], number: 1) }", NormalSchema,
-                 pipeline_modifier: &AbsintheConstraints.Phase.add_to_pipeline/2
+               TestSchema.run_query("{ test(list: [1], number: 1) }")
+    end
+
+    test "should return errors on valid mutation arguments" do
+      assert {:ok, %{data: %{"do_something" => "ok"}}} ==
+               TestSchema.run_query(
+                 "mutation { do_something(id: \"6C20BCCA-9396-452B-99AB-F2C168CA7A58\", id_obj: {id: \"52316597-7194-4ABE-8152-B43C0E6CD43E\"}) }"
                )
     end
 
-    test "should validate mutation arguments" do
+    test "should return errors on invalid mutation arguments" do
       assert {:ok,
               %{
                 errors: [
@@ -56,10 +74,8 @@ defmodule AbsintheConstraints.Integration.APITest do
                   %{message: "\"id\" must be a valid UUID", locations: [%{line: 1, column: 46}]}
                 ]
               }} ==
-               Absinthe.run(
-                 "mutation { do_something(id: \"asdf\", id_obj: {id: \"123\"}) }",
-                 NormalSchema,
-                 pipeline_modifier: &AbsintheConstraints.Phase.add_to_pipeline/2
+               TestSchema.run_query(
+                 "mutation { do_something(id: \"asdf\", id_obj: {id: \"123\"}) }"
                )
     end
   end
