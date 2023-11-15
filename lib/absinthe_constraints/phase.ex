@@ -58,6 +58,16 @@ defmodule AbsintheConstraints.Phase do
     )
   end
 
+  # Handles the same nodes as below but for Lists
+  # TODO: We could also validate the items inside lists with other constraints.
+  defp handle_node(
+         %{
+           input_value: %{normalized: %Absinthe.Blueprint.Input.List{items: value}},
+           schema_node: %{__private__: private}
+         } = node
+       ),
+       do: handle_node_value(node, value, private)
+
   # Handles the following nodes:
   # Absinthe.Blueprint.Input.Field
   # Absinthe.Blueprint.Input.Argument
@@ -66,13 +76,17 @@ defmodule AbsintheConstraints.Phase do
            input_value: %{normalized: %{value: value}},
            schema_node: %{__private__: private}
          } = node
-       ) do
+       ),
+       do: handle_node_value(node, value, private)
+
+  # Handle all other nodes
+  defp handle_node(node), do: node
+
+  defp handle_node_value(node, value, private) do
     Keyword.get(private, :constraints, [])
     |> Enum.flat_map(&handle_constraint(&1, value, node))
-    |> Enum.reduce(node, &add_error/2)
+    |> Enum.reduce(node, &Absinthe.Phase.put_error(&2, &1))
   end
-
-  defp handle_node(node), do: node
 
   defp handle_constraint(config, value, node) do
     Validator.handle_constraint(config, value)
@@ -89,6 +103,4 @@ defmodule AbsintheConstraints.Phase do
       }
     end)
   end
-
-  defp add_error(error, node), do: Absinthe.Phase.put_error(node, error)
 end
