@@ -49,6 +49,14 @@ defmodule AbsintheConstraints.ValidatorTest do
       assert handle_constraint({:format, "email"}, "email@example.com") == []
     end
 
+    test "should validate regex pattern" do
+      assert handle_constraint({:pattern, "^[A-Z]*$"}, "asdf") == [
+               "must match regular expression `^[A-Z]*$`"
+             ]
+
+      assert handle_constraint({:pattern, "^[A-Z]*$"}, "ASDF") == []
+    end
+
     test "should validate min_items" do
       assert handle_constraint({:min_items, 5}, ["1", "2", "3", "4"]) == [
                "must have at least 5 items"

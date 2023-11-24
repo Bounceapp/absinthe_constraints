@@ -24,39 +24,36 @@ defmodule AbsintheConstraints.Directive do
   alias Absinthe.Blueprint.TypeReference.List
   alias Absinthe.Blueprint.TypeReference.NonNull
 
-  @string_args [:min_length, :max_length, :format]
+  @string_args [:min_length, :max_length, :format, :pattern]
   @number_args [:min, :max]
   @list_args [:min_items, :max_items]
 
   directive :constraints do
     on([:argument_definition, :field_definition])
 
-    arg(:min, non_null(:integer), description: "Ensure value is greater than or equal to")
-    arg(:max, non_null(:integer), description: "Ensure value is less than or equal to")
+    arg(:min, :integer, description: "Ensure value is greater than or equal to")
+    arg(:max, :integer, description: "Ensure value is less than or equal to")
 
-    arg(:format, non_null(:string), description: "Restricts the string to a specific format")
+    arg(:format, :string, description: "Restricts the string to a specific format")
+    arg(:pattern, :string, description: "Ensure value matches regex")
 
-    arg(:min_length, non_null(:integer), description: "Restrict to a minimum length")
-    arg(:max_length, non_null(:integer), description: "Restrict to a maximum length")
+    arg(:min_length, :integer, description: "Restrict to a minimum length")
+    arg(:max_length, :integer, description: "Restrict to a maximum length")
 
-    arg(:min_items, non_null(:integer), description: "Restrict to a minimum number of items")
-    arg(:max_items, non_null(:integer), description: "Restrict to a maximum number of items")
+    arg(:min_items, :integer, description: "Restrict to a minimum number of items")
+    arg(:max_items, :integer, description: "Restrict to a maximum number of items")
 
     expand(&__MODULE__.expand_constraints/2)
   end
 
-  def expand_constraints(args, %{type: %List{}} = node),
-    do: do_expand(args, node, get_args(:list))
-
-  def expand_constraints(args, %{type: %NonNull{of_type: type}} = node),
+  def expand_constraints(args, %{type: type} = node),
     do: do_expand(args, node, get_args(type))
-
-  def expand_constraints(args, %{type: type} = node), do: do_expand(args, node, get_args(type))
 
   defp get_args(:string), do: @string_args
   defp get_args(:integer), do: @number_args
   defp get_args(:float), do: @number_args
-  defp get_args(:list), do: @list_args
+  defp get_args(%List{}), do: @list_args
+  defp get_args(%NonNull{of_type: of_type}), do: get_args(of_type)
   defp get_args(type), do: raise("Unsupported type: #{inspect(type)}")
 
   defp do_expand(args, node, args_list) do
