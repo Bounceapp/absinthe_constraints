@@ -7,7 +7,7 @@ defmodule AbsintheConstraints.MixProject do
       description:
         "Defines a GraphQL directive to be used with Absinthe to validate input values.",
       package: package(),
-      version: "0.1.1",
+      version: "0.2.0",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
