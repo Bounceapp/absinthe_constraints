@@ -23,11 +23,7 @@ defmodule AbsintheConstraints.MixProject do
 
   defp deps do
     [
-      # We require this version for a fix introduced in master that is not yet released.
-      {:absinthe,
-       github: "absinthe-graphql/absinthe",
-       ref: "a0afbe1aa3d7e2d47a88370b78d62fa9c002e72c",
-       override: true},
+      {:absinthe, ">= 1.7.6"},
       {:elixir_uuid, ">= 1.2.1"},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false},
       {:dialyxir, "~> 1.3", only: [:dev], runtime: false}

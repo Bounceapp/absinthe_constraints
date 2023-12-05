@@ -53,4 +53,10 @@ defmodule AbsintheConstraints.Validator do
       do: [],
       else: ["must be a valid email address"]
   end
+
+  def handle_constraint({:pattern, regex}, value) do
+    if String.match?(value, Regex.compile!(regex)),
+      do: [],
+      else: ["must match regular expression `#{regex}`"]
+  end
 end
