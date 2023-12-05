@@ -9,7 +9,7 @@ Install from [Hex.pm](https://hex.pm/packages/absinthe_constraints)
 ```elixir
 def deps do
   [
-    {:absinthe_constraints, "~> 0.1.0"}
+    {:absinthe_constraints, "~> 0.2.0"}
   ]
 end
 ```
