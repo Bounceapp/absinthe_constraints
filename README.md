@@ -103,3 +103,9 @@ Restrict to a minimum number of items
 #### max
 ```directives: [constraints: [max_items: 5]]```
 Restrict to a maximum number of items
+
+### Regex
+
+#### pattern
+```directives: [constraints: [pattern: "^[A-Z][0-9a-z]*$"]]```
+Ensure value follows a specific Regex pattern
