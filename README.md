@@ -80,13 +80,13 @@ Restrict to a minimum length
 ```directives: [constraints: [format: :uuid]]```
 Ensure value is in a particular format
 
-#### pattern
-```directives: [constraints: [pattern: "^[A-Z][0-9a-z]*$"]]```
-Ensure value follows a specific Regex pattern
-
 Supported formats:
 - `:uuid` - uses :elixir_uuid to validate the value
 - `:email` - uses a regex to validate the value
+
+#### pattern
+```directives: [constraints: [pattern: "^[A-Z][0-9a-z]*$"]]```
+Ensure value follows a specific Regex pattern
 
 ### Number (integer/float)
 
