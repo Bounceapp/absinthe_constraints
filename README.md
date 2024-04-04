@@ -74,15 +74,15 @@ Restrict to a minimum length
 
 #### max_length
 ```directives: [constraints: [max_length: 5]]```
-Restrict to a minimum length
+Restrict to a maximum length
 
 #### format
-```directives: [constraints: [format: :uuid]]```
+```directives: [constraints: [format: "uuid"]]```
 Ensure value is in a particular format
 
 Supported formats:
-- `:uuid` - uses :elixir_uuid to validate the value
-- `:email` - uses a regex to validate the value
+- `"uuid"` - uses :elixir_uuid to validate the value
+- `"email"` - uses a regex to validate the value
 
 #### pattern
 ```directives: [constraints: [pattern: "^[A-Z][0-9a-z]*$"]]```
