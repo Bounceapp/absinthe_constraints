@@ -104,6 +104,6 @@ Ensure value is less than or equal to
 ```directives: [constraints: [min_items: 5]]```
 Restrict to a minimum number of items
 
-#### max
+#### max_items
 ```directives: [constraints: [max_items: 5]]```
 Restrict to a maximum number of items
