@@ -27,7 +27,7 @@ defmodule AbsintheConstraints.Phase do
 
   # This matches: Absinthe.Blueprint.Input.Argument
   # We handle this node in order to append the location to errors in input field coming from query variables.
-  # This also requires a postwalk, in order to first handle each input object field separatly withouth the location,
+  # This also requires a postwalk, in order to first handle each input object field separately without the location,
   # and then append the location to every error that doesn't have one.
   defp handle_node(
          %{
