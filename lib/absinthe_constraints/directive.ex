@@ -26,7 +26,7 @@ defmodule AbsintheConstraints.Directive do
 
   @string_args [:min_length, :max_length, :format, :pattern]
   @number_args [:min, :max]
-  @list_args [:min_items, :max_items]
+  @list_args [:min_items, :max_items] ++ @string_args
 
   directive :constraints do
     on([:argument_definition, :field_definition])
