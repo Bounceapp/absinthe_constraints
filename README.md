@@ -9,24 +9,34 @@ Install from [Hex.pm](https://hex.pm/packages/absinthe_constraints)
 ```elixir
 def deps do
   [
-    {:absinthe_constraints, "~> 0.2.0"}
+    {:absinthe_constraints, "~> 0.3.0"}
   ]
 end
 ```
 
 ## Usage
 
-#### 1. Add the `constraints` directive's prototype schema to your schema
+#### 1. Add `use AbsintheConstraints` to your schema
 
 ```elixir
 defmodule MyAppWeb.Schema do
   use Absinthe.Schema
-
-  @prototype_schema AbsintheConstraints.Directive
+  use AbsintheConstraints
 
   # Use `import_sdl`, etc...
 end
 ```
+
+This registers the `@constraints` directive both for runtime validation
+and as a directive *declaration* in the schema's blueprint. The
+declaration is then included in `mix absinthe.schema.sdl` output, so the
+generated SDL is valid GraphQL that downstream tooling (e.g.
+`graphql-inspector`, `graphql-js`) can parse.
+
+> Older versions of this library recommended setting
+> `@prototype_schema AbsintheConstraints.Directive` directly. That still
+> works at runtime but omits the directive declaration from SDL output,
+> producing invalid GraphQL. Prefer `use AbsintheConstraints`.
 
 #### 2. Add the document phase to your absinthe Pipeline
 
