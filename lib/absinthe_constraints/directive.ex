@@ -29,7 +29,7 @@ defmodule AbsintheConstraints.Directive do
   @list_args [:min_items, :max_items]
 
   directive :constraints do
-    on([:argument_definition, :field_definition])
+    on([:argument_definition, :field_definition, :input_field_definition])
 
     arg(:min, :integer, description: "Ensure value is greater than or equal to")
     arg(:max, :integer, description: "Ensure value is less than or equal to")
