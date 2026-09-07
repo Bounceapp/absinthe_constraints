@@ -21,6 +21,10 @@ defmodule AbsintheConstraints.Validator do
       else: []
   end
 
+  def handle_constraint({:min_length, min_length}, value) when is_list(value) do
+    value |> Enum.map(&handle_constraint({:min_length, min_length}, &1.data)) |> List.flatten()
+  end
+
   def handle_constraint({:min_length, min_length}, value) do
     if String.length(value) < min_length,
       do: ["must be at least #{min_length} characters in length"],
@@ -33,10 +37,18 @@ defmodule AbsintheConstraints.Validator do
       else: []
   end
 
+  def handle_constraint({:max_length, max_length}, value) when is_list(value) do
+    value |> Enum.map(&handle_constraint({:max_length, max_length}, &1.data)) |> List.flatten()
+  end
+
   def handle_constraint({:max_length, max_length}, value) do
     if String.length(value) > max_length,
       do: ["must be no more than #{max_length} characters in length"],
       else: []
+  end
+
+  def handle_constraint({:format, "uuid"}, value) when is_list(value) do
+    value |> Enum.map(&handle_constraint({:format, "uuid"}, &1.data)) |> List.flatten()
   end
 
   def handle_constraint({:format, "uuid"}, value) do
@@ -48,10 +60,18 @@ defmodule AbsintheConstraints.Validator do
 
   @email_regex ~r/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
 
+  def handle_constraint({:format, "email"}, value) when is_list(value) do
+    value |> Enum.map(&handle_constraint({:format, "email"}, &1.data)) |> List.flatten()
+  end
+
   def handle_constraint({:format, "email"}, value) do
     if String.match?(value, @email_regex),
       do: [],
       else: ["must be a valid email address"]
+  end
+
+  def handle_constraint({:pattern, regex}, value) when is_list(value) do
+    value |> Enum.map(&handle_constraint({:pattern, regex}, &1.data)) |> List.flatten()
   end
 
   def handle_constraint({:pattern, regex}, value) do

@@ -23,6 +23,10 @@ defmodule AbsintheConstraints.Integration.APITest do
             directives: [constraints: [pattern: "^[A-Z][0-9a-z]*$"]]
           )
 
+          arg(:ids, non_null(list_of(non_null(:id))),
+            directives: [constraints: [format: "uuid"]]
+          )
+
           resolve(fn _, _ -> {:ok, "test_result"} end)
         end
       end
@@ -47,7 +51,9 @@ defmodule AbsintheConstraints.Integration.APITest do
 
     test "should return success on valid query arguments" do
       assert {:ok, %{data: %{"test" => "test_result"}}} ==
-               TestSchema.run_query("{ test(list: [1, 3], number: 5, regexField: \"A123aa\") }")
+               TestSchema.run_query(
+                 "{ test(list: [1, 3], number: 5, regexField: \"A123aa\", ids: [\"6C20BCCA-9396-452B-99AB-F2C168CA7A58\", \"6C20BCCA-9396-452B-99AB-F2C168CA7A58\"]) }"
+               )
     end
 
     test "should return errors on invalid query arguments" do
@@ -65,10 +71,13 @@ defmodule AbsintheConstraints.Integration.APITest do
                   %{
                     message: "\"regexField\" must match regular expression `^[A-Z][0-9a-z]*$`",
                     locations: [%{line: 1, column: 30}]
-                  }
+                  },
+                  %{message: "\"ids\" must be a valid UUID", locations: [%{line: 1, column: 53}]}
                 ]
               }} ==
-               TestSchema.run_query("{ test(list: [1], number: 1, regexField: \"invalid\") }")
+               TestSchema.run_query(
+                 "{ test(list: [1], number: 1, regexField: \"invalid\", ids: [\"6C20BCCA-9396-452B-99AB-F2C168CA7A58\", \"INVALID\"])}"
+               )
     end
 
     test "should return errors on valid mutation arguments" do
